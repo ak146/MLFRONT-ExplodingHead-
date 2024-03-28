@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>PictureIt</title>
+    <!-- Add your external CSS links here -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,700&display=swap" rel="stylesheet">
+    <!-- Add your custom CSS file links here -->
+    <style>
+        /* Keep your existing styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #060636;
+            background-image: url('titanicimage.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        form {
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(30, 30, 50, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 2.0s ease;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+        }
+
+        label {
+            margin-bottom: 10px;
+            color: white;
+            display: block;
+            width: 100%;
+            text-align: left;
+            opacity: 0;
+            animation: fadeInLabel 0.5s ease forwards;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            opacity: 0;
+            animation: fadeInInput 0.5s ease forwards;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #04AA6D;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeInButton 0.5s ease forwards;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #display,
+        #display2 {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @keyframes fadeInLabel {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInInput {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInButton {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form action="javascript:login_user()">
+        <h2>Titanic: Will you survive?</h2>
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" required />
+
+        <label for="pclass">Class:</label>
+        <select id="pclass" name="pclass">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+
+        <label for="sex">Sex:</label>
+        <select id="sex" name="sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label for="age">Age:</label>
+        <input type="number" name="age" id="age" required />
+
+        <label for="fmem">Family Members:</label>
+        <input type="number" name="fmem" id="fmem" required />
+
+        <label for="fare">Fare:</label>
+        <input type="number" name="fare" id="fare" required />
+
+        <label for="embark">Embarkment Port:</label>
+        <select id="embark" name="embark">
+            <option value="S">Southampton</option>
+            <option value="Q">Queenstown</option>
+            <option value="C">Cherbourg</option>
+        </select>
+
+        <button>Go!</button>
+
+        <p id="display">Survival Chance:</p>
+        <p id="display2">Deathrate:</p>
+    </form>
+</body>
+
+<script>
+  function login_user(){
+      // Set Authenticate endpoint
+      const url = 'http://127.0.0.1:8086/api/titanic/';
+
+      // Set the body of the request to include login data from the DOM
+      const body = {
+          name: document.getElementById("name").value,
+          pclass: parseInt(document.getElementById("pclass").value),
+          sex: document.getElementById("sex").value,
+          age: parseInt(document.getElementById("age").value),
+          fmem: parseInt(document.getElementById("fmem").value),
+          fare: parseInt(document.getElementById("fare").value),
+          embark: parseInt(document.getElementById("embark").value),
+      };
+
+      // Change options according to Authentication requirements
+      const authOptions = {
+          mode: 'cors', // no-cors, *cors, same-origin
+          credentials: 'include', // include, same-origin, omit
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          method: 'POST', // Override the method property
+          cache: 'no-cache', // Set the cache property
+          body: JSON.stringify(body)
+      };
+      console.log('Data:', body);
+
+      // Fetch JWT
+      fetch(url, authOptions)
+      .then(response => {
+          // Check if response is successful
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          // Parse the JSON content from the response
+          return response.json();
+      })
+      .then(data => {
+          // Now 'data' contains the parsed JSON content
+          console.log("now logging the returned data");
+          console.log(data);
+          document.getElementById("display").innerHTML = "Survival Chance: " + ((1-data[0]) * 100).toFixed(2) + "%.";
+          document.getElementById("display2").innerHTML = "Deathrate: " + (data[0] * 100).toFixed(2) + "%.";
+          console.log(url);
+          console.log(authOptions);
+        })
+      .catch(error => {
+          // Handle errors here
+          console.error('There was a problem with the fetch operation:', error);
+      });
+  }
+
+  // Attach login_user to the window object, allowing access to form action
+// window.login_user = login_user;
+</script>
+
+</body>
+
+</html>
